@@ -6,10 +6,6 @@ import org.springframework.web.bind.annotation.*;
 
 import com.pizza.crm.model.Client;
 import com.pizza.crm.service.ClientService;
-//import com.primus.crm.service.clientService;
-
-import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/client")
@@ -18,34 +14,36 @@ public class ClientController {
     @Autowired
     private ClientService clientService;
 
-    // CREATE
     @PostMapping("/add")
     public ResponseEntity<Client> addClient(@RequestBody Client client) {
-        Client savedClient = clientService.addClient(client);
-        return ResponseEntity.ok(savedClient);
+    	Client savedClient = clientService.addClient(client);
+    	return ResponseEntity.ok(savedClient);
     }
-
-    // READ ALL
-    @GetMapping("/")
-    public ResponseEntity<List<Client>> getAllClients() {
-        return ResponseEntity.ok(clientService.getAllClients());
-    }
-
-    // READ BY EMAIL
-    @GetMapping("/{email}")
+    
+    @GetMapping("/email/{email}")
     public ResponseEntity<Client> getClientByEmail(@PathVariable String email) {
-        Optional<Client> client = clientService.getClientByEmail(email);
-        return client.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+    	return clientService.getClientByEmail(email)
+    			.map(ResponseEntity::ok)
+    			.orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    // UPDATE
+    @GetMapping("/id/{id}")
+    public ResponseEntity<Client> getClientByEmail(@PathVariable Long id) {
+    	return clientService.getClientById(id)
+    			.map(ResponseEntity::ok)
+    			.orElseGet(() -> ResponseEntity.notFound().build());
+    }
+    
     @PutMapping("/update/{id}")
-    public ResponseEntity<Client> updateClient(@PathVariable Long id, @RequestBody Client updatedClient) {
-        Optional<Client> updated = clientService.updateClient(id, updatedClient);
-        return updated.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+    public ResponseEntity<Client> updateClient(@PathVariable Long id, @RequestBody Client updatedClient) {        
+    	try {
+    		Client updated = clientService.updateClient(id, updatedClient);
+    		return ResponseEntity.ok(updated);
+    	}catch (RuntimeException e){
+    		return ResponseEntity.notFound().build();
+    	}
     }
 
-    // DELETE
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<Void> deleteClient(@PathVariable Long id) {
         if (clientService.deleteClient(id)) {
